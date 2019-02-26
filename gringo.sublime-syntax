@@ -1,0 +1,132 @@
+%YAML 1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html for instructions
+name: Gringo
+file_extensions:
+  - lp
+scope: source.lp
+
+contexts:
+  # The prototype context is prepended to all contexts but those setting
+  # meta_include_prototype: false.
+  prototype:
+    - include: comments
+
+  # The main context is the initial starting point of our syntax.
+  # Include other contexts from here (or specify them directly).
+  main:
+    - include: pythonscript
+    - include: luascript
+    - include: keywords
+    - include: numbers
+    - include: strings
+    - include: vars
+    - include: rules
+    - include: opers
+    - include: types
+    - include: funcs
+    - include: terms
+
+  # Python script integration with clingo
+  pythonscript:
+    - match: '#script.*\(python\)'
+      scope: constant.character.lp
+      push: Packages/Python/Python.sublime-syntax
+      with_prototype:
+              - match: (#end.)
+                scope: constant.character.lp
+                pop: true
+
+  # Lua script integration with clingo
+  luascript:
+    - match: '#script.*\(lua\)'
+      scope: constant.character.lp
+      push: Packages/Lua/Lua.sublime-syntax
+      with_prototype:
+              - match: (#end.)
+                scope: constant.character.lp
+                pop: true
+
+  # Variables in ASP is starting with either '_' or Uppercase.
+  vars:
+    # Color in orange
+    # ToDo: support full variables.
+    - match: '_*[A-Z][a-zA-Z0-9_]*'
+      scope: variable.parameter.lp
+
+  # Rules symbol
+  rules:
+    # Color in red
+    - match: ':-'
+      scope: keyword.control.lp
+
+  # Operator symbols
+  opers:
+    # Color in red
+    - match: '=|<|<=|>|>=|=|==|!=|\+|-'
+      scope: keyword.operator.arithmetic.lp
+
+  # Solver control symbols
+  types:
+    # Color in red
+    - match: '#ishift|#base|#domain|#hide|#show|#cumulative|#volatile|#const|#include|#incremental|#sup|#inf|#supremum|#infimum|#undef|#disjoint|#theory'
+      scope: keyword.operator.logical.lp
+
+  # Built-in aggregators
+  funcs:
+    # Color in blue
+    - match: '#compute|#minimise|#maximise|#minimize|#maximize|#external|#count|#sum|#times|#abs|#avg|#mod|#odd|#even|#pow|#program|#min|#max|'
+      scope: variable.function.lp
+
+  # For logic program only three keywords, true/false/not.
+  keywords:
+    # Color in pink
+    # Keywords are #true, #false and not.
+    - match: '#true|#false|not'
+      scope: constant.character.lp
+
+  # Terms
+  terms:
+    # Color in green
+    - match: '[a-z][a-zA-Z0-9_]*'
+      scope: entity.name.function.lp
+
+  # Numbers[Natural Number only]
+  numbers:
+    - match: '\b[0-9]+\b'
+      scope: constant.numeric.lp
+
+  # Strings[You can represent real number as string]
+  strings:
+    # Strings begin and end with quotes, and use backslashes as an escape
+    # character.
+    - match: '"'
+      scope: punctuation.definition.string.begin.lp
+      push: inside_string
+
+  inside_string:
+    - meta_include_prototype: false
+    - meta_scope: string.quoted.double.lp
+    #- match: '\.'
+    #  scope: constant.character.escape.lp
+    - match: '"'
+      scope: punctuation.definition.string.end.lp
+      pop: true
+
+  # Comment section, block comment and line comment
+  comments:
+    - match: '%\*'
+      scope: punctuation.definition.comment.lp
+      push:
+        # This is an anonymous context push for brevity.
+        - meta_scope: comment.block.percentage.lp
+        - match: '\*%'
+          pop: true
+    # Comments begin with a '%' and finish at the end of the line.
+    - match: '%'
+      scope: punctuation.definition.comment.lp
+      push:
+        # This is an anonymous context push for brevity.
+        - meta_scope: comment.line.percentage.lp
+        - match: $\n?
+          pop: true
