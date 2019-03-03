@@ -1,0 +1,4 @@
+{
+    "cmd": ["clingo","$file"],
+    "selector": "text.lp"
+}
