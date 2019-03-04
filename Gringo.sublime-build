@@ -1,4 +1,5 @@
 {
     "cmd": ["clingo","$file"],
-    "selector": "text.lp"
+    "selector": "source.lp",
+    "file_regex": "^\\s*File \"(...*?)\", line ([0-9]*)"
 }
